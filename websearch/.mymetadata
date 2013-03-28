@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="websearch"
+  id="myeclipse.1213169328578"
+  context-root="/websearch"
+  j2ee-spec="5.0"
+  archive="websearch.war">
+  <attributes>
+    <attribute name="webrootdir" value="WebRoot" />
+  </attributes>
+</project-module>
+

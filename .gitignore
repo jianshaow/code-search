@@ -1,6 +1,15 @@
+.metadata
+.settings
+.project
+.classpath
+.antlr-eclipse
+
+target
 *.class
 
 # Package Files #
 *.jar
 *.war
 *.ear
+
+*.log
