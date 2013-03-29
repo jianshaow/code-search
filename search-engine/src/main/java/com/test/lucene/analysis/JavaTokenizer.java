@@ -24,6 +24,29 @@ public class JavaTokenizer extends Tokenizer {
 		this.scanner = new JavaParserTokenManager(new JavaCharStream(input));
 	}
 
+//	@Override
+//	public Token next(Token result) throws IOException {
+//		while (true) {
+//			try {
+//				japa.parser.Token nextToken = this.scanner.getNextToken();
+//				if (nextToken.kind == JavaParserConstants.IDENTIFIER) {
+//					result.clear();
+//					result.setTermBuffer(nextToken.image.toCharArray(), 0,
+//							nextToken.image.length());
+//					result.setType(JavaParserConstants.tokenImage[nextToken.kind]);
+//					break;
+//				}
+//				if ("".equals(nextToken.image)) {
+//					return null;
+//				}
+//			} catch (Error e) {
+//				e.printStackTrace();
+//				return null;
+//			}
+//		}
+//		return result;
+//	}
+
 	@Override
 	public boolean incrementToken() throws IOException {
 		clearAttributes();
