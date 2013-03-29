@@ -1,4 +1,4 @@
-<%@ page import = "  javax.servlet.*, javax.servlet.http.*, java.io.*, org.apache.lucene.analysis.*, org.apache.lucene.analysis.standard.StandardAnalyzer, org.apache.lucene.document.*, org.apache.lucene.index.*, org.apache.lucene.search.*, org.apache.lucene.queryParser.*, org.apache.lucene.demo.*, org.apache.lucene.demo.html.Entities, java.net.URLEncoder" %>
+<%@ page import = "  javax.servlet.*, javax.servlet.http.*, java.io.*, org.apache.lucene.util.Version, org.apache.lucene.store.FSDirectory, org.apache.lucene.analysis.*, org.apache.lucene.analysis.core.*, org.apache.lucene.analysis.standard.StandardAnalyzer, org.apache.lucene.document.*, org.apache.lucene.index.*, org.apache.lucene.search.*, org.apache.lucene.queryparser.classic.*, java.net.URLEncoder" %>
 
 <%
 /*
@@ -30,8 +30,8 @@ public String escapeHTML(String s) {
         boolean error = false;                  //used to control flow for error messages
         String indexName = indexLocation;       //local copy of the configuration variable
         IndexSearcher searcher = null;          //the searcher used to open/search the index
+        TopDocs topDocs = null;
         Query query = null;                     //the Query created by the QueryParser
-        Hits hits = null;                       //the search results
         int startindex = 0;                     //the first index displayed on this page
         int maxpage    = 50;                    //the maximum items displayed on this page
         String queryString = null;              //the query entered in the previous page
@@ -42,7 +42,8 @@ public String escapeHTML(String s) {
                                                 //less
 
         try {
-          searcher = new IndexSearcher(indexName);      //create an indexSearcher for our page
+          IndexReader reader = DirectoryReader.open(FSDirectory.open(new File(indexName)));
+          searcher = new IndexSearcher(reader);      //create an indexSearcher for our page
                                                         //NOTE: this operation is slow for large
                                                         //indices (much slower than the search itself)
                                                         //so you might want to keep an IndexSearcher 
@@ -78,7 +79,7 @@ public String escapeHTML(String s) {
 
                 Analyzer analyzer = new KeywordAnalyzer();           //construct our usual analyzer
                 try {
-                        QueryParser qp = new QueryParser("contents", analyzer);
+                        QueryParser qp = new QueryParser(Version.LUCENE_42, "contents", analyzer);
                         query = qp.parse(queryString); //parse the 
                 } catch (ParseException e) {                          //query and construct the Query
                                                                       //object
@@ -98,8 +99,8 @@ public String escapeHTML(String s) {
                                                                       // searcher != null was to handle
                                                                       // a weird compilation bug 
                 thispage = maxpage;                                   // default last element to maxpage
-                hits = searcher.search(query);                        // run the query 
-                if (hits.length() == 0) {                             // if we got no results tell the user
+                topDocs = searcher.search(query, 100);                        // run the query 
+                if (topDocs.totalHits == 0) {                             // if we got no results tell the user
 %>
                 <p> I'm sorry I couldn't find what you were looking for. </p>
 <%
@@ -116,15 +117,15 @@ public String escapeHTML(String s) {
                         <td>Summary</td>
                 </tr>
 <%
-                if ((startindex + maxpage) > hits.length()) {
-                        thispage = hits.length() - startindex;      // set the max index to maxpage or last
+                if ((startindex + maxpage) > topDocs.scoreDocs.length) {
+                        thispage = topDocs.scoreDocs.length - startindex;      // set the max index to maxpage or last
                 }                                                   // actual search result whichever is less
 
                 for (int i = startindex; i < (thispage + startindex); i++) {  // for each element
 %>
                 <tr>
 <%
-                        Document doc = hits.doc(i);                    //get the next document 
+                        Document doc = searcher.doc(topDocs.scoreDocs[i].doc);                    //get the next document 
                         String doctitle = doc.get("jarEntry");            //get its title
                         String url = doc.get("url");                  //get its path field
                         if (url != null && url.startsWith("../webapps/")) { // strip off ../webapps prefix if present
@@ -140,7 +141,7 @@ public String escapeHTML(String s) {
 <%
                 }
 %>
-<%                if ( (startindex + maxpage) < hits.length()) {   //if there are more results...display 
+<%                if ( (startindex + maxpage) < topDocs.scoreDocs.length) {   //if there are more results...display 
                                                                    //the more link
 
                         String moreurl="results.jsp?query=" + 
@@ -157,7 +158,5 @@ public String escapeHTML(String s) {
                 </table>
 
 <%       }                                            //then include our footer.
-         if (searcher != null)
-                searcher.close();
 %>
 <%@include file="footer.jsp"%>        

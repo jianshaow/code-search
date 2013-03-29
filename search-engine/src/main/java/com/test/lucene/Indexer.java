@@ -14,18 +14,24 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.test.lucene.analysis.JavaAnalyzer;
+import com.test.lucene.analysis.JavaTokenizer;
 
 public class Indexer {
 
-	private static final Log logger = LogFactory.getLog(Indexer.class);
+	private static final Logger logger = LoggerFactory.getLogger(Indexer.class);
 
 	/**
 	 * @param args
@@ -54,14 +60,15 @@ public class Indexer {
 					+ " dose not exist or is not a directoty");
 		}
 
-		final IndexWriter writer = new IndexWriter(indexDir,
-				new JavaAnalyzer(), true);
-		writer.setUseCompoundFile(false);
+		Directory dir = FSDirectory.open(indexDir);
+		final JavaAnalyzer analyzer = new JavaAnalyzer();
+		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_42,
+				analyzer);
+		final IndexWriter writer = new IndexWriter(dir, config);
 
 		indexDirectory(writer, dataDir);
-
-		final int numIndexed = writer.docCount();
-		writer.optimize();
+		writer.commit();
+		final int numIndexed = writer.numDocs();
 		writer.close();
 		return numIndexed;
 	}
@@ -105,7 +112,7 @@ public class Indexer {
 		jarFile.close();
 	}
 
-	private static void index(IndexWriter writer, File f,
+	private static void index(IndexWriter writer, File file,
 			final JarFile jarFile, final JarEntry jarEntry) throws IOException,
 			ParseException, CorruptIndexException {
 		logger.info("Indexing [" + jarEntry.getName() + "]");
@@ -118,19 +125,30 @@ public class Indexer {
 		if (types != null) {
 			for (final TypeDeclaration typeDeclaration : types) {
 				if (typeDeclaration.getName() != null) {
-					doc.add(new Field("type", typeDeclaration.getName(),
-							Field.Store.YES, Field.Index.UN_TOKENIZED));
+					final Field field = new Field("type",
+							typeDeclaration.getName(), buildType(true, true,
+									false));
+					doc.add(field);
 				}
 			}
 		}
 		doc.add(new Field("url", "file:///"
-				+ f.getCanonicalPath().replace("\\", "/"), Field.Store.YES,
-				Field.Index.UN_TOKENIZED));
-		doc.add(new Field("contents", reader));
-		doc.add(new Field("jarFile", f.getName(), Field.Store.YES,
-				Field.Index.UN_TOKENIZED));
-		doc.add(new Field("jarEntry", jarEntry.getName(), Field.Store.YES,
-				Field.Index.UN_TOKENIZED));
+				+ file.getCanonicalPath().replace("\\", "/"), buildType(true,
+				false, false)));
+		doc.add(new Field("contents", reader, buildType(false, true, true)));
+		doc.add(new Field("jarFile", file.getName(), buildType(true, false,
+				false)));
+		doc.add(new Field("jarEntry", jarEntry.getName(), buildType(true,
+				false, false)));
 		writer.addDocument(doc);
+	}
+
+	private static FieldType buildType(final boolean stored,
+			final boolean indexed, final boolean tokenized) {
+		final FieldType type = new FieldType();
+		type.setIndexed(indexed);
+		type.setStored(stored);
+		type.setTokenized(tokenized);
+		return type;
 	}
 }
