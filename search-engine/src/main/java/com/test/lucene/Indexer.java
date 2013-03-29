@@ -7,6 +7,7 @@ import japa.parser.ast.body.TypeDeclaration;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
 
 import com.test.lucene.analysis.JavaAnalyzer;
@@ -45,7 +47,8 @@ public class Indexer {
 				+ (end - start) + " milliseconds");
 	}
 
-	public static int index(File indexDir, File dataDir) throws IOException, ParseException {
+	public static int index(File indexDir, File dataDir) throws IOException,
+			ParseException {
 		if (!dataDir.exists() || !dataDir.isDirectory()) {
 			throw new IOException(dataDir
 					+ " dose not exist or is not a directoty");
@@ -87,51 +90,47 @@ public class Indexer {
 		final JarFile jarFile = new JarFile(f);
 
 		final Enumeration<JarEntry> entries = jarFile.entries();
-		for (; entries.hasMoreElements();) {
+		while (entries.hasMoreElements()) {
 			final JarEntry jarEntry = entries.nextElement();
 			if (jarEntry.getName().endsWith(".java")) {
-//				try {
-				if(
-						jarEntry.getName().equals("OSGI-OPT/src/aQute/lib/osgi/Macro.java")
-						|| jarEntry.getName().startsWith("org/apache/commons/lang/enum")
-						|| jarEntry.getName().startsWith("archetype-resources/src/main/java/entity")
-						|| jarEntry.getName().equals("org/apache/velocity/runtime/parser/Parser.java")
-						|| jarEntry.getName().equals("org/apache/velocity/texen/Generator.java")
-						|| jarEntry.getName().equals("org/apache/velocity/util/EnumerationIterator.java")
-						|| f.getName().equals("service-archetype-1.0.jar")
-						){
+				try {
+					index(writer, f, jarFile, jarEntry);
+				} catch (Throwable e) {
+					logger.error("indexing " + jarEntry.getName() + " error...");
+					logger.error(e.getMessage(), e);
 					continue;
 				}
-					logger.info("Indexing [" + jarEntry.getName() + "]");
-					final Document doc = new Document();
-					final InputStreamReader reader = new InputStreamReader(
-							jarFile.getInputStream(jarEntry));
-					final CompilationUnit compilationUnit = JavaParser
-							.parse(jarFile.getInputStream(jarEntry));
-					final List<TypeDeclaration> types = compilationUnit
-							.getTypes();
-					if(types!=null){
-					for (final TypeDeclaration typeDeclaration : types) {
-						if (typeDeclaration.getName() != null) {
-							doc.add(new Field("type",
-									typeDeclaration.getName(), Field.Store.YES,
-									Field.Index.UN_TOKENIZED));
-						}
-					}
-					}
-					doc.add(new Field("url", "file:///" + f.getCanonicalPath().replace("\\", "/"),
-							Field.Store.YES, Field.Index.UN_TOKENIZED));
-					doc.add(new Field("contents", reader));
-					doc.add(new Field("jarFile", f.getName(), Field.Store.YES,
-							Field.Index.UN_TOKENIZED));
-					doc.add(new Field("jarEntry", jarEntry.getName(),
-							Field.Store.YES, Field.Index.UN_TOKENIZED));
-					writer.addDocument(doc);
-//				} catch (Throwable e) {
-//					logger.error("indexing " + jarEntry.getName() + " error...");
-//					logger.error(e.getMessage(), e);
-//				}
 			}
 		}
+		jarFile.close();
+	}
+
+	private static void index(IndexWriter writer, File f,
+			final JarFile jarFile, final JarEntry jarEntry) throws IOException,
+			ParseException, CorruptIndexException {
+		logger.info("Indexing [" + jarEntry.getName() + "]");
+		final Document doc = new Document();
+		final InputStream inputStream = jarFile.getInputStream(jarEntry);
+		final InputStreamReader reader = new InputStreamReader(
+				jarFile.getInputStream(jarEntry));
+		final CompilationUnit compilationUnit = JavaParser.parse(inputStream);
+		final List<TypeDeclaration> types = compilationUnit.getTypes();
+		if (types != null) {
+			for (final TypeDeclaration typeDeclaration : types) {
+				if (typeDeclaration.getName() != null) {
+					doc.add(new Field("type", typeDeclaration.getName(),
+							Field.Store.YES, Field.Index.UN_TOKENIZED));
+				}
+			}
+		}
+		doc.add(new Field("url", "file:///"
+				+ f.getCanonicalPath().replace("\\", "/"), Field.Store.YES,
+				Field.Index.UN_TOKENIZED));
+		doc.add(new Field("contents", reader));
+		doc.add(new Field("jarFile", f.getName(), Field.Store.YES,
+				Field.Index.UN_TOKENIZED));
+		doc.add(new Field("jarEntry", jarEntry.getName(), Field.Store.YES,
+				Field.Index.UN_TOKENIZED));
+		writer.addDocument(doc);
 	}
 }
