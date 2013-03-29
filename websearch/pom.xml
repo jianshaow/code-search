@@ -9,6 +9,7 @@
 		<relativePath>../code-search-parent/</relativePath>
 	</parent>
 	<artifactId>websearch</artifactId>
+	<packaging>war</packaging>
 	<dependencies>
 		<dependency>
 			<groupId>de.java2html</groupId>
@@ -37,6 +38,12 @@
 				<groupId>org.mortbay.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
 				<version>8.1.9.v20130131</version>
+				<configuration>
+					<webApp>
+						<contextPath>/</contextPath>
+						<defaultsDescriptor>etc/webdefault.xml</defaultsDescriptor>
+					</webApp>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

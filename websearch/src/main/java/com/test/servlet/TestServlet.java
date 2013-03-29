@@ -83,6 +83,7 @@ public class TestServlet extends HttpServlet {
 			out.println("</HTML>");
 			out.flush();
 			out.close();
+			jarFile.close();
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}

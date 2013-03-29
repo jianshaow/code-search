@@ -1,22 +1,68 @@
 package com.test.lucene.analysis;
 
+import japa.parser.JavaCharStream;
+import japa.parser.JavaParserConstants;
+import japa.parser.JavaParserTokenManager;
+import japa.parser.Token;
+
 import java.io.IOException;
 import java.io.Reader;
 
-import org.apache.lucene.analysis.Token;
 import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 
 public class JavaTokenizer extends Tokenizer {
 
-	private JavaTokenizerImpl scanner;
+	private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
+	private final TypeAttribute typeAtt = addAttribute(TypeAttribute.class);
+
+	private JavaParserTokenManager scanner;
 
 	public JavaTokenizer(Reader input) {
-		this.input = input;
-		this.scanner = new JavaTokenizerImpl(input);
+		super(input);
+		this.scanner = new JavaParserTokenManager(new JavaCharStream(input));
 	}
 
+//	@Override
+//	public Token next(Token result) throws IOException {
+//		while (true) {
+//			try {
+//				japa.parser.Token nextToken = this.scanner.getNextToken();
+//				if (nextToken.kind == JavaParserConstants.IDENTIFIER) {
+//					result.clear();
+//					result.setTermBuffer(nextToken.image.toCharArray(), 0,
+//							nextToken.image.length());
+//					result.setType(JavaParserConstants.tokenImage[nextToken.kind]);
+//					break;
+//				}
+//				if ("".equals(nextToken.image)) {
+//					return null;
+//				}
+//			} catch (Error e) {
+//				e.printStackTrace();
+//				return null;
+//			}
+//		}
+//		return result;
+//	}
+
 	@Override
-	public Token next(Token result) throws IOException {
-		return scanner.nextToken(result);
+	public boolean incrementToken() throws IOException {
+		clearAttributes();
+
+		while (true) {
+			Token nextToken = this.scanner.getNextToken();
+			if ("".equals(nextToken.image)
+					|| nextToken.kind == JavaParserConstants.EOF) {
+				return false;
+			}
+			if (nextToken.kind == JavaParserConstants.IDENTIFIER) {
+				termAtt.copyBuffer(nextToken.image.toCharArray(), 0,
+						nextToken.image.length());
+				typeAtt.setType(JavaParserConstants.tokenImage[nextToken.kind]);
+				return true;
+			}
+		}
 	}
 }
