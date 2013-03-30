@@ -3,6 +3,7 @@ package com.test.lucene;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -14,8 +15,6 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
-
-import com.test.lucene.analysis.JavaAnalyzer;
 
 public class Searcher {
 
@@ -46,7 +45,7 @@ public class Searcher {
 		final IndexSearcher searcher = new IndexSearcher(reader);
 
 		final Query query = new QueryParser(Version.LUCENE_42, "contents",
-				new JavaAnalyzer()).parse(q);
+				new KeywordAnalyzer()).parse(q);
 		System.out.println(query);
 		final long start = System.currentTimeMillis();
 		final TopDocs topDocs = searcher.search(query, 100);

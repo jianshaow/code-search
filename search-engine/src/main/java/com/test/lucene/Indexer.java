@@ -6,6 +6,7 @@ import japa.parser.ast.CompilationUnit;
 import japa.parser.ast.body.TypeDeclaration;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -48,8 +49,8 @@ public class Indexer {
 		final int numIndexed = index(indexDir, dataDir);
 		final long end = System.currentTimeMillis();
 
-		System.out.println("Indexing " + numIndexed + " files took "
-				+ (end - start) + " milliseconds");
+		logger.trace("Indexing " + numIndexed + " files took " + (end - start)
+				+ " milliseconds");
 	}
 
 	public static int index(File indexDir, File dataDir) throws IOException,
@@ -72,35 +73,73 @@ public class Indexer {
 		return numIndexed;
 	}
 
-	private static void indexDirectory(IndexWriter writer, File dir)
+	public static void indexDirectory(IndexWriter writer, File dir)
 			throws IOException, ParseException {
 		final File[] files = dir.listFiles();
 
-		for (final File f : files) {
-			if (f.isDirectory()) {
-				indexDirectory(writer, f);
-			} else if (f.getName().endsWith("sources.jar")) {
-				indexJarFile(writer, f);
+		for (final File file : files) {
+			if (file.isDirectory()) {
+				indexDirectory(writer, file);
+			} else if (file.getName().endsWith("sources.jar")) {
+				indexJarFile(writer, file);
+			} else if (file.getName().endsWith("java")) {
+				indexJavaFile(writer, file);
 			}
 		}
 	}
 
-	private static void indexJarFile(IndexWriter writer, File f)
+	public static void indexJavaFile(IndexWriter writer, File file) {
+		if (file.isHidden() || !file.exists() || !file.canRead()) {
+			return;
+		}
+		try {
+			final Document doc = new Document();
+			final InputStream inputStream = new FileInputStream(file);
+			final InputStreamReader reader = new InputStreamReader(
+					new FileInputStream(file));
+			final CompilationUnit compilationUnit = JavaParser
+					.parse(inputStream);
+			final List<TypeDeclaration> types = compilationUnit.getTypes();
+			if (types != null) {
+				for (final TypeDeclaration typeDeclaration : types) {
+					if (typeDeclaration.getName() != null) {
+						final Field field = new Field("type",
+								typeDeclaration.getName(), buildType(true,
+										true, false));
+						doc.add(field);
+					}
+				}
+			}
+			final String uri = "file:///"
+					+ file.getCanonicalPath().replace("\\", "/");
+			doc.add(new Field("url", uri, buildType(true, false, false)));
+			doc.add(new Field("contents", reader, buildType(false, true, true)));
+			doc.add(new Field("javaFile", file.getName(), buildType(true,
+					false, false)));
+			writer.addDocument(doc);
+		} catch (Throwable e) {
+			logger.error("indexing " + file.getName() + " error...");
+			logger.error(e.getMessage(), e);
+		}
+
+	}
+
+	public static void indexJarFile(IndexWriter writer, File file)
 			throws IOException, ParseException {
-		if (f.isHidden() || !f.exists() || !f.canRead()) {
+		if (file.isHidden() || !file.exists() || !file.canRead()) {
 			return;
 		}
 
-		logger.info("Indexing " + f.getCanonicalPath());
+		logger.info("Indexing " + file.getCanonicalPath());
 
-		final JarFile jarFile = new JarFile(f);
+		final JarFile jarFile = new JarFile(file);
 
 		final Enumeration<JarEntry> entries = jarFile.entries();
 		while (entries.hasMoreElements()) {
 			final JarEntry jarEntry = entries.nextElement();
 			if (jarEntry.getName().endsWith(".java")) {
 				try {
-					index(writer, f, jarFile, jarEntry);
+					index(writer, file, jarFile, jarEntry);
 				} catch (Throwable e) {
 					logger.error("indexing " + jarEntry.getName() + " error...");
 					logger.error(e.getMessage(), e);
@@ -131,9 +170,9 @@ public class Indexer {
 				}
 			}
 		}
-		doc.add(new Field("url", "file:///"
-				+ file.getCanonicalPath().replace("\\", "/"), buildType(true,
-				false, false)));
+		final String uri = "file:///"
+				+ file.getCanonicalPath().replace("\\", "/");
+		doc.add(new Field("url", uri, buildType(true, false, false)));
 		doc.add(new Field("contents", reader, buildType(false, true, true)));
 		doc.add(new Field("jarFile", file.getName(), buildType(true, false,
 				false)));

@@ -10,10 +10,12 @@ import java.io.Reader;
 
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 
 public class JavaTokenizer extends Tokenizer {
 
+	private final PositionIncrementAttribute posIncrAtt = addAttribute(PositionIncrementAttribute.class);
 	private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
 	private final TypeAttribute typeAtt = addAttribute(TypeAttribute.class);
 
@@ -24,45 +26,24 @@ public class JavaTokenizer extends Tokenizer {
 		this.scanner = new JavaParserTokenManager(new JavaCharStream(input));
 	}
 
-//	@Override
-//	public Token next(Token result) throws IOException {
-//		while (true) {
-//			try {
-//				japa.parser.Token nextToken = this.scanner.getNextToken();
-//				if (nextToken.kind == JavaParserConstants.IDENTIFIER) {
-//					result.clear();
-//					result.setTermBuffer(nextToken.image.toCharArray(), 0,
-//							nextToken.image.length());
-//					result.setType(JavaParserConstants.tokenImage[nextToken.kind]);
-//					break;
-//				}
-//				if ("".equals(nextToken.image)) {
-//					return null;
-//				}
-//			} catch (Error e) {
-//				e.printStackTrace();
-//				return null;
-//			}
-//		}
-//		return result;
-//	}
-
 	@Override
 	public boolean incrementToken() throws IOException {
 		clearAttributes();
+		int posIncr = 1;
 
 		while (true) {
-			Token nextToken = this.scanner.getNextToken();
-			if ("".equals(nextToken.image)
-					|| nextToken.kind == JavaParserConstants.EOF) {
+			Token token = this.scanner.getNextToken();
+			if (token.kind == JavaParserConstants.EOF) {
 				return false;
 			}
-			if (nextToken.kind == JavaParserConstants.IDENTIFIER) {
-				termAtt.copyBuffer(nextToken.image.toCharArray(), 0,
-						nextToken.image.length());
-				typeAtt.setType(JavaParserConstants.tokenImage[nextToken.kind]);
+			if (token.kind == JavaParserConstants.IDENTIFIER) {
+				posIncrAtt.setPositionIncrement(posIncr);
+				termAtt.copyBuffer(token.image.toCharArray(), 0,
+						token.image.length());
+				typeAtt.setType(JavaParserConstants.tokenImage[token.kind]);
 				return true;
 			}
+			posIncr++;
 		}
 	}
 }

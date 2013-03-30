@@ -1,4 +1,4 @@
-package com.test;
+package com.test.parser;
 
 import japa.parser.JavaParser;
 import japa.parser.ParseException;
@@ -11,7 +11,7 @@ import japa.parser.ast.body.TypeDeclaration;
 
 import java.io.File;
 
-public class Test {
+public class ParserTest {
 
 	public static void main(String[] args) throws ParseException {
 		final CompilationUnit compilationUnit = JavaParser.parse(new File(
