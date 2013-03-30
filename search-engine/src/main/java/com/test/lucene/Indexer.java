@@ -46,14 +46,14 @@ public class Indexer {
 		final File dataDir = new File(args[1]);
 
 		final long start = System.currentTimeMillis();
-		final int numIndexed = index(indexDir, dataDir);
+		final int numIndexed = indexDirection(indexDir, dataDir);
 		final long end = System.currentTimeMillis();
 
 		logger.trace("Indexing " + numIndexed + " files took " + (end - start)
 				+ " milliseconds");
 	}
 
-	public static int index(File indexDir, File dataDir) throws IOException,
+	public static int indexDirection(File indexDir, File dataDir) throws IOException,
 			ParseException {
 		if (!dataDir.exists() || !dataDir.isDirectory()) {
 			throw new IOException(dataDir
@@ -65,26 +65,24 @@ public class Indexer {
 		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_42,
 				analyzer);
 		final IndexWriter writer = new IndexWriter(dir, config);
-
-		indexDirectory(writer, dataDir);
+		index(writer, dataDir);
 		writer.commit();
 		final int numIndexed = writer.numDocs();
 		writer.close();
 		return numIndexed;
 	}
 
-	public static void indexDirectory(IndexWriter writer, File dir)
-			throws IOException, ParseException {
-		final File[] files = dir.listFiles();
-
-		for (final File file : files) {
-			if (file.isDirectory()) {
-				indexDirectory(writer, file);
-			} else if (file.getName().endsWith("sources.jar")) {
-				indexJarFile(writer, file);
-			} else if (file.getName().endsWith("java")) {
-				indexJavaFile(writer, file);
+	public static void index(IndexWriter writer, File file) throws IOException,
+			ParseException {
+		if (file.isDirectory()) {
+			final File[] subFiles = file.listFiles();
+			for (final File subFile : subFiles) {
+				index(writer, subFile);
 			}
+		} else if (file.getName().endsWith("sources.jar")) {
+			indexJarFile(writer, file);
+		} else if (file.getName().endsWith("java")) {
+			indexJavaFile(writer, file);
 		}
 	}
 
@@ -105,17 +103,18 @@ public class Indexer {
 					if (typeDeclaration.getName() != null) {
 						final Field field = new Field("type",
 								typeDeclaration.getName(), buildType(true,
-										true, false));
+										true, false, false));
 						doc.add(field);
 					}
 				}
 			}
 			final String uri = "file:///"
 					+ file.getCanonicalPath().replace("\\", "/");
-			doc.add(new Field("url", uri, buildType(true, false, false)));
-			doc.add(new Field("contents", reader, buildType(false, true, true)));
+			doc.add(new Field("url", uri, buildType(true, false, false, false)));
+			doc.add(new Field("contents", reader, buildType(false, true, true,
+					false)));
 			doc.add(new Field("javaFile", file.getName(), buildType(true,
-					false, false)));
+					false, false, false)));
 			writer.addDocument(doc);
 		} catch (Throwable e) {
 			logger.error("indexing " + file.getName() + " error...");
@@ -146,6 +145,7 @@ public class Indexer {
 					continue;
 				}
 			}
+			writer.commit();
 		}
 		jarFile.close();
 	}
@@ -156,8 +156,6 @@ public class Indexer {
 		logger.info("Indexing [" + jarEntry.getName() + "]");
 		final Document doc = new Document();
 		final InputStream inputStream = jarFile.getInputStream(jarEntry);
-		final InputStreamReader reader = new InputStreamReader(
-				jarFile.getInputStream(jarEntry));
 		final CompilationUnit compilationUnit = JavaParser.parse(inputStream);
 		final List<TypeDeclaration> types = compilationUnit.getTypes();
 		if (types != null) {
@@ -165,28 +163,33 @@ public class Indexer {
 				if (typeDeclaration.getName() != null) {
 					final Field field = new Field("type",
 							typeDeclaration.getName(), buildType(true, true,
-									false));
+									false, false));
 					doc.add(field);
 				}
 			}
 		}
 		final String uri = "file:///"
 				+ file.getCanonicalPath().replace("\\", "/");
-		doc.add(new Field("url", uri, buildType(true, false, false)));
-		doc.add(new Field("contents", reader, buildType(false, true, true)));
-		doc.add(new Field("jarFile", file.getName(), buildType(true, false,
+		doc.add(new Field("url", uri, buildType(true, false, false, false)));
+		final InputStreamReader reader = new InputStreamReader(
+				jarFile.getInputStream(jarEntry));
+		doc.add(new Field("contents", reader, buildType(false, true, true,
 				false)));
-		doc.add(new Field("jarEntry", jarEntry.getName(), buildType(true,
+		doc.add(new Field("jarFile", file.getName(), buildType(true, false,
 				false, false)));
+		doc.add(new Field("jarEntry", jarEntry.getName(), buildType(true,
+				false, false, false)));
 		writer.addDocument(doc);
 	}
 
 	private static FieldType buildType(final boolean stored,
-			final boolean indexed, final boolean tokenized) {
+			final boolean indexed, final boolean tokenized,
+			boolean storeTermVectors) {
 		final FieldType type = new FieldType();
 		type.setIndexed(indexed);
 		type.setStored(stored);
 		type.setTokenized(tokenized);
+		type.setStoreTermVectors(storeTermVectors);
 		return type;
 	}
 }

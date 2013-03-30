@@ -72,6 +72,7 @@ public class JavaCharStream
   protected java.io.Reader inputStream;
 
   protected char[] nextCharBuf;
+  protected int nextCharBufOffset = 0;
   protected char[] buffer;
   protected int maxNextCharInd = 0;
   protected int nextCharInd = -1;
@@ -132,8 +133,10 @@ public class JavaCharStream
   protected void FillBuff() throws java.io.IOException
   {
      int i;
-     if (maxNextCharInd == 4096)
+     if (maxNextCharInd == 4096) {
         maxNextCharInd = nextCharInd = 0;
+        nextCharBufOffset += 4096;
+     }
 
      try {
         if ((i = inputStream.read(nextCharBuf, maxNextCharInd,
@@ -583,4 +586,7 @@ public int getLine() {
      column = bufcolumn[j];
   }
 
+  public int getEnd() {
+	  return this.nextCharBufOffset + this.nextCharInd;
+  }
 }

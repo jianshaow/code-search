@@ -55,10 +55,10 @@ public class TestServlet extends HttpServlet {
 			out.println("  <HEAD><TITLE>A Servlet</TITLE></HEAD>");
 			out.println("  <BODY>");
 
-			if (file.length() > 400000) {
-				out.println("  文档太大");
-				return;
-			}
+//			if (file.length() > 400000) {
+//				out.println("  文档太大");
+//				return;
+//			}
 
 			final JarFile jarFile = new JarFile(file);
 			final JarEntry jarEntry = jarFile.getJarEntry(entry);
