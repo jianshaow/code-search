@@ -135,7 +135,7 @@ public String escapeHTML(String s) {
                                 doctitle = url;
                                                                        //then output!
 %>
-                        <td><a href="servlet/TestServlet?url=<%=url%>&entry=<%=doctitle%>"><%=doctitle%></a></td>
+                        <td><a href="show-code?url=<%=url%>&entry=<%=doctitle%>"><%=doctitle%></a></td>
                         <td><%=doc.get("jarFile")%></td>
                 </tr>
 <%

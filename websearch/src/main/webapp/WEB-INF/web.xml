@@ -5,15 +5,15 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
 	http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
   <servlet>
-    <description>This is the description of my J2EE component</description>
-    <display-name>This is the display name of my J2EE component</display-name>
-    <servlet-name>TestServlet</servlet-name>
-    <servlet-class>com.test.servlet.TestServlet</servlet-class>
+    <description>Show the code</description>
+    <display-name>Show the code</display-name>
+    <servlet-name>ShowCodeServlet</servlet-name>
+    <servlet-class>com.test.servlet.ShowCodeServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
-    <servlet-name>TestServlet</servlet-name>
-    <url-pattern>/servlet/TestServlet</url-pattern>
+    <servlet-name>ShowCodeServlet</servlet-name>
+    <url-pattern>/show-code</url-pattern>
   </servlet-mapping>
   <welcome-file-list>
     <welcome-file>index.jsp</welcome-file>

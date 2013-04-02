@@ -56,6 +56,11 @@
 				<version>${solr.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.eclipse.jgit</groupId>
+				<artifactId>org.eclipse.jgit</artifactId>
+				<version>2.2.0.201212191850-r</version>
+			</dependency>
+			<dependency>
 				<groupId>de.java2html</groupId>
 				<artifactId>java2html</artifactId>
 				<version>5.0</version>

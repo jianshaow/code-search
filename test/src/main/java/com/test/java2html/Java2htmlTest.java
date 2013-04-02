@@ -1,8 +1,7 @@
-package com.test;
+package com.test.java2html;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.jar.JarEntry;
@@ -13,11 +12,11 @@ import de.java2html.converter.IJavaSourceConverter;
 import de.java2html.javasource.JavaSource;
 import de.java2html.javasource.JavaSourceParser;
 
-public class Test {
+public class Java2htmlTest {
 
 	public static void main(String[] args) throws IOException {
 		final JarFile jarFile = new JarFile(
-				"C:/Documents and Settings/wujianshao/.m2/repository/org/mule/mule-core/1.4.4/mule-core-1.4.4-sources.jar");
+				"D:/Users/ejiowuu/.m2/repository/org/mule/mule-core/1.4.4/mule-core-1.4.4-sources.jar");
 		final JarEntry jarEntry = jarFile
 				.getJarEntry("org/mule/transaction/TransactionCallback.java");
 //		final InputStream input = jarFile.getInputStream(jarEntry);

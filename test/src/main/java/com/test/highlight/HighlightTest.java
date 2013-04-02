@@ -52,11 +52,10 @@ public class HighlightTest {
 			TopDocs hits = searcher.search(query, 100);
 			ScoreDoc[] scoreDoc = hits.scoreDocs;
 
-			Highlighter highlighter = null;
 			SimpleHTMLFormatter simpleHTMLFormatter = new SimpleHTMLFormatter(
 					"<read>", "</read>");
-			highlighter = new Highlighter(simpleHTMLFormatter, new QueryScorer(
-					query));
+			Highlighter highlighter = new Highlighter(simpleHTMLFormatter,
+					new QueryScorer(query));
 			highlighter.setTextFragmenter(new SimpleFragmenter(1000));
 
 			Document doc = searcher.doc(scoreDoc[0].doc);
