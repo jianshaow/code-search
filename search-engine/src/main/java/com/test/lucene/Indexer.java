@@ -21,6 +21,7 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
@@ -53,8 +54,8 @@ public class Indexer {
 				+ " milliseconds");
 	}
 
-	public static int indexDirection(File indexDir, File dataDir) throws IOException,
-			ParseException {
+	public static int indexDirection(File indexDir, File dataDir)
+			throws IOException, ParseException {
 		if (!dataDir.exists() || !dataDir.isDirectory()) {
 			throw new IOException(dataDir
 					+ " dose not exist or is not a directoty");
@@ -64,6 +65,7 @@ public class Indexer {
 		final JavaAnalyzer analyzer = new JavaAnalyzer();
 		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_42,
 				analyzer);
+		config.setOpenMode(OpenMode.CREATE);
 		final IndexWriter writer = new IndexWriter(dir, config);
 		index(writer, dataDir);
 		writer.commit();
@@ -112,7 +114,7 @@ public class Indexer {
 					+ file.getCanonicalPath().replace("\\", "/");
 			doc.add(new Field("url", uri, buildType(true, false, false, false)));
 			doc.add(new Field("contents", reader, buildType(false, true, true,
-					false)));
+					true)));
 			doc.add(new Field("javaFile", file.getName(), buildType(true,
 					false, false, false)));
 			writer.addDocument(doc);
@@ -173,8 +175,8 @@ public class Indexer {
 		doc.add(new Field("url", uri, buildType(true, false, false, false)));
 		final InputStreamReader reader = new InputStreamReader(
 				jarFile.getInputStream(jarEntry));
-		doc.add(new Field("contents", reader, buildType(false, true, true,
-				false)));
+		doc.add(new Field("contents", reader,
+				buildType(false, true, true, true)));
 		doc.add(new Field("jarFile", file.getName(), buildType(true, false,
 				false, false)));
 		doc.add(new Field("jarEntry", jarEntry.getName(), buildType(true,
@@ -190,6 +192,7 @@ public class Indexer {
 		type.setStored(stored);
 		type.setTokenized(tokenized);
 		type.setStoreTermVectors(storeTermVectors);
+		type.setStoreTermVectorOffsets(storeTermVectors);
 		return type;
 	}
 }

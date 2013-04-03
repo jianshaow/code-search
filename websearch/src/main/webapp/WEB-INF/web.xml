@@ -8,7 +8,7 @@
     <description>Show the code</description>
     <display-name>Show the code</display-name>
     <servlet-name>ShowCodeServlet</servlet-name>
-    <servlet-class>com.test.servlet.ShowCodeServlet</servlet-class>
+    <servlet-class>com.test.servlet.ShowHighlightCodeServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>

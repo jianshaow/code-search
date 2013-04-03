@@ -128,6 +128,8 @@ public String escapeHTML(String s) {
                         Document doc = searcher.doc(topDocs.scoreDocs[i].doc);                    //get the next document 
                         String doctitle = doc.get("jarEntry");            //get its title
                         String url = doc.get("url");                  //get its path field
+                        String jarFile = doc.get("jarFile");
+                        String javaFile = doc.get("javaFile");
                         if (url != null && url.startsWith("../webapps/")) { // strip off ../webapps prefix if present
                                 url = url.substring(10);
                         }
@@ -135,8 +137,8 @@ public String escapeHTML(String s) {
                                 doctitle = url;
                                                                        //then output!
 %>
-                        <td><a href="show-code?url=<%=url%>&entry=<%=doctitle%>"><%=doctitle%></a></td>
-                        <td><%=doc.get("jarFile")%></td>
+                        <td><a href="show-code?url=<%=url%>&entry=<%=doctitle%>&query=<%=URLEncoder.encode(queryString)%>>"><%=doctitle%></a></td>
+                        <td><%=jarFile==null ? javaFile : jarFile%></td>
                 </tr>
 <%
                 }
