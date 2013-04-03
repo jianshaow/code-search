@@ -22,6 +22,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.highlight.Highlighter;
+import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.SimpleFragmenter;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
@@ -33,82 +34,40 @@ import com.test.lucene.analysis.JavaAnalyzer;
 
 public class HighlightTest {
 
-	/**
-	 * @param args
-	 * @throws Exception
-	 * @throws URISyntaxException
-	 */
-	public static void main(String[] args) throws URISyntaxException, Exception {
-//		searchHighlightByAnalyzer();
-		searchHighlightByTermVector();
+	private static String getFragment(Highlighter highlighter,
+			final IndexSearcher searcher, final ScoreDoc scoreDoc)
+			throws IOException, Exception, MalformedURLException,
+			URISyntaxException, InvalidTokenOffsetsException {
+		Document doc = searcher.doc(scoreDoc.doc);
+		final String content = InputStream2String(getInputStream(doc));
+		final IndexReader indexReader = searcher.getIndexReader();
+		final Terms termVector = indexReader.getTermVector(scoreDoc.doc,
+				"contents");
+		final TokenStream tokenStream = TokenSources.getTokenStream(termVector);
+		final String fragment = highlighter.getBestFragment(tokenStream,
+				content);
+		return fragment;
 	}
 
-	public static void searchHighlightByAnalyzer() {
-		try {
-			final FSDirectory directory = FSDirectory.open(new File(
-					"D:/lucene-index/research"));
-			IndexSearcher searcher = new IndexSearcher(
-					DirectoryReader.open(directory));
-			String strField = "contents";
-			final Analyzer analyzer = new JavaAnalyzer();
-			QueryParser parser = new QueryParser(Version.LUCENE_42, strField,
-					analyzer);
-			Query query = parser.parse("apache");
-			TopDocs hits = searcher.search(query, 100);
-			ScoreDoc[] scoreDoc = hits.scoreDocs;
-
-			SimpleHTMLFormatter simpleHTMLFormatter = new SimpleHTMLFormatter(
-					"<read>", "</read>");
-			Highlighter highlighter = new Highlighter(simpleHTMLFormatter,
-					new QueryScorer(query));
-			highlighter.setTextFragmenter(new SimpleFragmenter(1000));
-
-			Document doc = searcher.doc(scoreDoc[0].doc);
-
-			final String content = InputStream2String(getInputStream(doc));
-
-			System.out.println(highlighter.getBestFragment(analyzer,
-					"contents", content));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	private static String getFragment(final Highlighter highlighter,
+			final IndexSearcher searcher, final ScoreDoc scoreDoc,
+			final Analyzer analyzer) throws IOException, Exception,
+			MalformedURLException, URISyntaxException,
+			InvalidTokenOffsetsException {
+		final Document doc = searcher.doc(scoreDoc.doc);
+		final String content = InputStream2String(getInputStream(doc));
+		final String fragment = highlighter.getBestFragment(analyzer,
+				"contents", content);
+		return fragment;
 	}
 
-	public static void searchHighlightByTermVector() {
-		try {
-			final FSDirectory directory = FSDirectory.open(new File(
-					"D:/lucene-index/research"));
-			IndexSearcher searcher = new IndexSearcher(
-					DirectoryReader.open(directory));
-			String strField = "contents";
-			final Analyzer analyzer = new JavaAnalyzer();
-			QueryParser parser = new QueryParser(Version.LUCENE_42, strField,
-					analyzer);
-			Query query = parser.parse("rowMapper");
-			TopDocs hits = searcher.search(query, 100);
-			ScoreDoc[] scoreDoc = hits.scoreDocs;
-
-			SimpleHTMLFormatter simpleHTMLFormatter = new SimpleHTMLFormatter(
-					"<read>", "</read>");
-			Highlighter highlighter = new Highlighter(simpleHTMLFormatter,
-					new QueryScorer(query));
-			highlighter.setTextFragmenter(new SimpleFragmenter(1000));
-
-			Document doc = searcher.doc(scoreDoc[0].doc);
-			final String content = InputStream2String(getInputStream(doc));
-
-			final IndexReader indexReader = searcher.getIndexReader();
-
-			final Terms termVector = indexReader.getTermVector(scoreDoc[0].doc,
-					"contents");
-			final TokenStream tokenStream = TokenSources
-					.getTokenStream(termVector);
-
-			System.out.println(highlighter
-					.getBestFragment(tokenStream, content));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	private static Highlighter getHighlighter(Query query) {
+		SimpleHTMLFormatter simpleHTMLFormatter = new SimpleHTMLFormatter(
+				"<read>", "</read>");
+		Highlighter highlighter = new Highlighter(simpleHTMLFormatter,
+				new QueryScorer(query));
+		highlighter.setTextFragmenter(new SimpleFragmenter(1000));
+		return highlighter;
 	}
 
 	private static InputStream getInputStream(Document doc) throws IOException,
@@ -125,7 +84,7 @@ public class HighlightTest {
 		return fileInputStream;
 	}
 
-	public static String InputStream2String(InputStream in) throws Exception {
+	private static String InputStream2String(InputStream in) throws Exception {
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 		byte[] data = new byte[4096];
 		int count = -1;
@@ -134,5 +93,63 @@ public class HighlightTest {
 		}
 
 		return new String(outStream.toByteArray(), "UTF-8");
+	}
+
+	/**
+	 * @param args
+	 * @throws Exception
+	 * @throws URISyntaxException
+	 */
+	public static void main(String[] args) throws URISyntaxException, Exception {
+		// searchHighlightByAnalyzer();
+		searchHighlightByTermVector();
+	}
+
+	public static void searchHighlightByAnalyzer() {
+		try {
+			final FSDirectory directory = FSDirectory.open(new File(
+					"D:/lucene-index/research"));
+			final IndexSearcher searcher = new IndexSearcher(
+					DirectoryReader.open(directory));
+			final Analyzer analyzer = new JavaAnalyzer();
+			final QueryParser parser = new QueryParser(Version.LUCENE_42,
+					"contents", analyzer);
+			final Query query = parser.parse("apache");
+			final TopDocs hits = searcher.search(query, 100);
+			final ScoreDoc[] scoreDocs = hits.scoreDocs;
+
+			final ScoreDoc scoreDoc = scoreDocs[0];
+
+			final Highlighter highlighter = getHighlighter(query);
+
+			final String fragment = getFragment(highlighter, searcher,
+					scoreDoc, analyzer);
+			System.out.println(fragment);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void searchHighlightByTermVector() {
+		try {
+			final FSDirectory directory = FSDirectory.open(new File(
+					"D:/lucene-index/research"));
+			final IndexSearcher searcher = new IndexSearcher(
+					DirectoryReader.open(directory));
+			final Analyzer analyzer = new JavaAnalyzer();
+			final QueryParser parser = new QueryParser(Version.LUCENE_42,
+					"contents", analyzer);
+			final Query query = parser.parse("rowMapper");
+			final TopDocs hits = searcher.search(query, 100);
+			final ScoreDoc[] scoreDocs = hits.scoreDocs;
+			final ScoreDoc scoreDoc = scoreDocs[0];
+
+			final Highlighter highlighter = getHighlighter(query);
+
+			final String fragment = getFragment(highlighter, searcher, scoreDoc);
+			System.out.println(fragment);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
