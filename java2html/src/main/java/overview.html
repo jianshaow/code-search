@@ -1,0 +1,147 @@
+<body>
+<h2>Java2Html converter.</h2>
+<ul>
+ <li>Author: <a href="mailto:markus@jave.de">Markus Gebhard</a>
+ <li>Homepage: <a href="http://www.java2html.de">http://www.java2html.de</a>
+</ul>
+
+<h2>Features</h2>
+<ul>
+ <li>Open Source
+ <li>Parses source files even if grammatically incorrect (e.g. code snippets)
+ <li>Conversion output can be configured (Color, style,...)
+ <li>Available as Application, Applet, Eclipse plugin and library.
+ <li>Can easily be integrated into other projects (e.g. Wikis)
+</ul>
+
+<h2>Example usage</h2>
+<ul>Here is an example of the typical usage of this library:
+
+<pre>
+//Create a reader of the raw input text
+StringReader stringReader = new StringReader(
+  "/** Simple Java2Html Demo */\r\n"+      
+  "public static int doThis(String text){ return text.length() + 2; }");
+
+//Parse the raw text to a JavaSource object
+JavaSource source = null;
+try {
+  source = new JavaSourceParser().parse(stringReader);
+} catch (IOException e) {
+  e.printStackTrace();
+  System.exit(1);
+}
+
+//Create a converter and write the JavaSource object as Html
+JavaSource2HTMLConverter converter = new JavaSource2HTMLConverter(source);
+StringWriter writer = new StringWriter(); 
+try {
+  converter.convert(writer);
+} catch (IOException e) {
+}
+System.out.println(writer.toString());
+</pre>
+
+The output of this program will look like this:
+
+<!-- ======================================================== -->
+<!-- = Java Sourcecode to HTML automatically converted code = -->
+<!-- =   Java to HTML Converter V3.0 2003 by Markus Gebhard  markus@jave.de   = -->
+<!-- =     Further information: http://www.java2html.de     = -->
+<center>
+ <table  align="center" border="0" cellpadding="3" cellspacing="0" bgcolor="#ffffff">
+   <tr>
+  <!-- start source code -->
+   <td nowrap valign="top" align="left">
+    <code>
+<font color="#808080">1&nbsp;</font><font color="#008000">/**&nbsp;Simple&nbsp;Java2Html&nbsp;Demo&nbsp;*/</font><br>
+<font color="#808080">2&nbsp;</font><font color="#0000c0"><b>public&nbsp;static&nbsp;</b></font><font color="#c00000"><b>int&nbsp;</b></font><font color="#000000">doThis</font><font color="#000000">(</font><font color="#000000">String&nbsp;text</font><font color="#000000">){&nbsp;</font><font color="#0000c0"><b>return&nbsp;</b></font><font color="#000000">text.length</font><font color="#000000">()&nbsp;</font><font color="#000000">+&nbsp;</font><font color="#990000">2</font><font color="#000000">;&nbsp;</font><font color="#000000">}</font></code>
+    
+   </td>
+  <!-- end source code -->
+   </tr>
+ </table>
+</center>
+<!-- =       END of automatically generated HTML code       = -->
+<!-- ======================================================== -->
+
+<p>The above example uses a <code>java.io.StringReader</code> to read the raw text from and
+a <code>java.io.StringWriter</code> to write the output to. You may want to use
+a <code>java.io.FileReader</code> and/or a <code>java.io.FileWriter</code> or
+others instead.
+</ul>
+
+<h2>Conversion options</h2>
+<ul>If you don't like the default options of the converter you can also change
+the colors and style of the output. Just add a few lines before the conversion: 
+<pre>
+//Get the default options and adjust it to your needs
+JavaSourceConversionOptions options =
+  JavaSourceConversionOptions.getDefault();
+options.setShowLineNumbers(false);
+options.getStyleTable().put(
+  JavaSourceType.KEYWORD,
+  new JavaSourceStyleEntry(Color.orange, true, false));
+converter.setConversionOptions(options);
+</pre>
+
+
+<p>Conversion output:
+
+<!-- ======================================================== -->
+<!-- = Java Sourcecode to HTML automatically converted code = -->
+<!-- =   Java to HTML Converter V3.0 2003 by Markus Gebhard  markus@jave.de   = -->
+<!-- =     Further information: http://www.java2html.de     = -->
+<center>
+ <table  align="center" border="0" cellpadding="3" cellspacing="0" bgcolor="#ffffff">
+   <tr>
+  <!-- start source code -->
+   <td nowrap valign="top" align="left">
+    <code>
+<font color="#008000">/**&nbsp;Simple&nbsp;Java2Html&nbsp;Demo&nbsp;*/</font><br>
+<font color="#ffc800"><b>public&nbsp;static&nbsp;</b></font><font color="#c00000"><b>int&nbsp;</b></font><font color="#000000">doThis</font><font color="#000000">(</font><font color="#000000">String&nbsp;text</font><font color="#000000">){&nbsp;</font><font color="#ffc800"><b>return&nbsp;</b></font><font color="#000000">text.length</font><font color="#000000">()&nbsp;</font><font color="#000000">+&nbsp;</font><font color="#990000">2</font><font color="#000000">;&nbsp;</font><font color="#000000">}</font></code>
+    
+   </td>
+  <!-- end source code -->
+   </tr>
+ </table>
+</center>
+<!-- =       END of automatically generated HTML code       = -->
+<!-- ======================================================== -->
+
+<p>For a detailed description of the available options have a look at
+{@link de.java2html.options.JavaSourceConversionOptions}.
+</ul>
+
+<h2>Convenience class</h2>
+If you don't want to care about the handling Writers and Readers there
+is also a convenience class for converting directly from a String to a String
+using the default converter options.
+<p>For a detailed description have a look at {@link de.java2html.Java2Html}.
+
+
+<h2>Further development:</h2>
+<ul>
+ <li>Additional output styles
+
+ <li>Improved API
+
+ <li>Additional conversion targets
+  <ul>Take JavaSource2HtmlConverter and change it to produce
+     other output formats.</ul>
+
+ <li>Speedup
+   <ul>As far as I remember in the parser there are a lot of O(n) lookups that could be replaced
+ by much faster hashtable lookups. Also at some situations StringTokenizers are used for
+ splitting the code. This is time-consuming and should be done by state machines.</ul>
+</ul>
+
+<h2>Not included in further development:</h2>
+ <li>Links
+  <ul>Links to superclass, interfaces, used classes, etc. is a feature
+     that can not easily be done with the type of parser in this project.
+     The parser is intended to even parse syntactically wrong code and does
+     not build a syntax tree or whatever. If you need this feature you should
+     look for a different project.</ul>
+
+</body>
