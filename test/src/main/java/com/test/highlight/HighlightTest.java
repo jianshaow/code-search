@@ -38,8 +38,8 @@ public class HighlightTest {
 			final IndexSearcher searcher, final ScoreDoc scoreDoc)
 			throws IOException, Exception, MalformedURLException,
 			URISyntaxException, InvalidTokenOffsetsException {
-		Document doc = searcher.doc(scoreDoc.doc);
-		final String content = InputStream2String(getInputStream(doc));
+		final Document doc = searcher.doc(scoreDoc.doc);
+		final String content = inputStream2String(getInputStream(doc));
 		final IndexReader indexReader = searcher.getIndexReader();
 		final Terms termVector = indexReader.getTermVector(scoreDoc.doc,
 				"contents");
@@ -55,16 +55,16 @@ public class HighlightTest {
 			MalformedURLException, URISyntaxException,
 			InvalidTokenOffsetsException {
 		final Document doc = searcher.doc(scoreDoc.doc);
-		final String content = InputStream2String(getInputStream(doc));
+		final String content = inputStream2String(getInputStream(doc));
 		final String fragment = highlighter.getBestFragment(analyzer,
 				"contents", content);
 		return fragment;
 	}
 
 	private static Highlighter getHighlighter(Query query) {
-		SimpleHTMLFormatter simpleHTMLFormatter = new SimpleHTMLFormatter(
+		final SimpleHTMLFormatter simpleHTMLFormatter = new SimpleHTMLFormatter(
 				"<read>", "</read>");
-		Highlighter highlighter = new Highlighter(simpleHTMLFormatter,
+		final Highlighter highlighter = new Highlighter(simpleHTMLFormatter,
 				new QueryScorer(query));
 		highlighter.setTextFragmenter(new SimpleFragmenter(1000));
 		return highlighter;
@@ -84,9 +84,9 @@ public class HighlightTest {
 		return fileInputStream;
 	}
 
-	private static String InputStream2String(InputStream in) throws Exception {
-		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-		byte[] data = new byte[4096];
+	private static String inputStream2String(InputStream in) throws Exception {
+		final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+		final byte[] data = new byte[4096];
 		int count = -1;
 		while ((count = in.read(data, 0, 4096)) != -1) {
 			outStream.write(data, 0, count);
@@ -101,7 +101,9 @@ public class HighlightTest {
 	 * @throws URISyntaxException
 	 */
 	public static void main(String[] args) throws URISyntaxException, Exception {
-		// searchHighlightByAnalyzer();
+		searchHighlightByAnalyzer();
+		System.out
+				.println("======================================================");
 		searchHighlightByTermVector();
 	}
 
@@ -114,7 +116,7 @@ public class HighlightTest {
 			final Analyzer analyzer = new JavaAnalyzer();
 			final QueryParser parser = new QueryParser(Version.LUCENE_42,
 					"contents", analyzer);
-			final Query query = parser.parse("apache");
+			final Query query = parser.parse("rowMapper");
 			final TopDocs hits = searcher.search(query, 100);
 			final ScoreDoc[] scoreDocs = hits.scoreDocs;
 

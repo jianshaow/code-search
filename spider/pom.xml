@@ -9,5 +9,6 @@
 		<relativePath>../code-search-parent/</relativePath>
 	</parent>
 	<artifactId>spider</artifactId>
+	<packaging>war</packaging>
 	<dependencies></dependencies>
 </project>
