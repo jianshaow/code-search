@@ -42,7 +42,8 @@ public class Searcher {
 
 	private static void search(File indexDir, String q) throws IOException,
 			ParseException {
-		IndexReader reader = DirectoryReader.open(FSDirectory.open(indexDir));
+		final IndexReader reader = DirectoryReader.open(FSDirectory
+				.open(indexDir));
 		final IndexSearcher searcher = new IndexSearcher(reader);
 
 		final Query query = new QueryParser(Version.LUCENE_42, "contents",
@@ -50,7 +51,7 @@ public class Searcher {
 		System.out.println(query);
 		final long start = System.currentTimeMillis();
 		final TopDocs topDocs = searcher.search(query, 100);
-		long end = System.currentTimeMillis();
+		final long end = System.currentTimeMillis();
 
 		System.out.println("Found " + topDocs.totalHits + " document(s) (in "
 				+ (end - start) + " milliseconds) that matched query '" + q

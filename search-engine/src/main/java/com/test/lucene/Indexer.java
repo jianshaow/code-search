@@ -61,10 +61,10 @@ public class Indexer {
 					+ " dose not exist or is not a directoty");
 		}
 
-		Directory dir = FSDirectory.open(indexDir);
+		final Directory dir = FSDirectory.open(indexDir);
 		final JavaAnalyzer analyzer = new JavaAnalyzer();
-		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_42,
-				analyzer);
+		final IndexWriterConfig config = new IndexWriterConfig(
+				Version.LUCENE_42, analyzer);
 		config.setOpenMode(OpenMode.CREATE);
 		final IndexWriter writer = new IndexWriter(dir, config);
 		index(writer, dataDir);

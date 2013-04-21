@@ -36,7 +36,7 @@ public class JavaTokenizer extends Tokenizer {
 		int posIncr = 1;
 
 		while (true) {
-			Token token = this.scanner.getNextToken();
+			final Token token = this.scanner.getNextToken();
 			if (token.kind == JavaParserConstants.EOF) {
 				return false;
 			}
@@ -57,7 +57,7 @@ public class JavaTokenizer extends Tokenizer {
 	@Override
 	public final void end() {
 		final int end = this.stream.getEnd();
-		int finalOffset = correctOffset(end);
+		final int finalOffset = correctOffset(end);
 		offsetAtt.setOffset(finalOffset, finalOffset);
 	}
 
