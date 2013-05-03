@@ -41,23 +41,23 @@ public class Indexer {
 	public static void main(String[] args) throws Exception {
 		if (args.length != 2) {
 			throw new Exception("Usage: java " + Indexer.class.getName()
-					+ " <index dir> <data dir>");
+					+ " <index dir> <target dir>");
 		}
 		final File indexDir = new File(args[0]);
-		final File dataDir = new File(args[1]);
+		final File targetDir = new File(args[1]);
 
 		final long start = System.currentTimeMillis();
-		final int numIndexed = indexDirection(indexDir, dataDir);
+		final int numIndexed = indexDirection(indexDir, targetDir);
 		final long end = System.currentTimeMillis();
 
 		logger.trace("Indexing " + numIndexed + " files took " + (end - start)
 				+ " milliseconds");
 	}
 
-	public static int indexDirection(File indexDir, File dataDir)
+	public static int indexDirection(File indexDir, File targetDir)
 			throws IOException, ParseException {
-		if (!dataDir.exists() || !dataDir.isDirectory()) {
-			throw new IOException(dataDir
+		if (!targetDir.exists() || !targetDir.isDirectory()) {
+			throw new IOException(targetDir
 					+ " dose not exist or is not a directoty");
 		}
 
@@ -67,7 +67,7 @@ public class Indexer {
 				Version.LUCENE_42, analyzer);
 		config.setOpenMode(OpenMode.CREATE);
 		final IndexWriter writer = new IndexWriter(dir, config);
-		index(writer, dataDir);
+		index(writer, targetDir);
 		writer.commit();
 		final int numIndexed = writer.numDocs();
 		writer.close();
