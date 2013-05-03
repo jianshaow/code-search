@@ -1,21 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app version="2.5" 
-	xmlns="http://java.sun.com/xml/ns/javaee" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
 	http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
-  <servlet>
-    <description>Show the code</description>
-    <display-name>Show the code</display-name>
-    <servlet-name>ShowCodeServlet</servlet-name>
-    <servlet-class>com.test.servlet.ShowHighlightCodeServlet</servlet-class>
-  </servlet>
+	<servlet>
+		<description>Show the highlight code</description>
+		<display-name>Show the highlight code</display-name>
+		<servlet-name>ShowHighlightCodeServlet</servlet-name>
+		<servlet-class>com.test.servlet.ShowHighlightCodeServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<description>Show the highlight code</description>
+		<display-name>Show the highlight code</display-name>
+		<servlet-name>ShowCodeServlet</servlet-name>
+		<servlet-class>com.test.servlet.ShowCodeServlet</servlet-class>
+	</servlet>
 
-  <servlet-mapping>
-    <servlet-name>ShowCodeServlet</servlet-name>
-    <url-pattern>/show-code</url-pattern>
-  </servlet-mapping>
-  <welcome-file-list>
-    <welcome-file>index.jsp</welcome-file>
-  </welcome-file-list>
+	<servlet-mapping>
+		<servlet-name>ShowHighlightCodeServlet</servlet-name>
+		<url-pattern>/show-highlight-code</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ShowCodeServlet</servlet-name>
+		<url-pattern>/show-code</url-pattern>
+	</servlet-mapping>
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
 </web-app>

@@ -111,10 +111,11 @@ public String escapeHTML(String s) {
 
         if (error == false && searcher != null) {                   
 %>
-                <table>
+                <table border=1>
                 <tr>
                         <td>Document</td>
                         <td>Summary</td>
+                        <td colspan=2>Action</td>
                 </tr>
 <%
                 if ((startindex + maxpage) > topDocs.scoreDocs.length) {
@@ -137,8 +138,10 @@ public String escapeHTML(String s) {
                                 doctitle = url;
                                                                        //then output!
 %>
-                        <td><a href="show-code?url=<%=url%>&entry=<%=doctitle%>&query=<%=URLEncoder.encode(queryString)%>>"><%=doctitle%></a></td>
+                        <td><%=doctitle%></td>
                         <td><%=jarFile==null ? javaFile : jarFile%></td>
+                        <td><a href="show-highlight-code?url=<%=url%>&entry=<%=doctitle%>&query=<%=URLEncoder.encode(queryString)%>>">show highlight snippet</a></td>
+                        <td><a href="show-code?url=<%=url%>&entry=<%=doctitle%>&query=<%=URLEncoder.encode(queryString)%>>">show all</a></td>
                 </tr>
 <%
                 }

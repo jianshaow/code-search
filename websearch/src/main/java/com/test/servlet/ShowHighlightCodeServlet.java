@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.jar.JarFile;
@@ -22,6 +23,7 @@ import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.apache.lucene.search.highlight.SimpleSpanFragmenter;
+import org.apache.lucene.search.highlight.TextFragment;
 import org.apache.lucene.util.Version;
 
 import com.test.lucene.analysis.JavaAnalyzer;
@@ -94,19 +96,18 @@ public class ShowHighlightCodeServlet extends HttpServlet {
 		final Query query = parser.parse(queryString);
 		final QueryScorer scorer = new QueryScorer(query);
 		Highlighter highlighter = new Highlighter(simpleHTMLFormatter, scorer);
-		highlighter.setTextFragmenter(new SimpleSpanFragmenter(scorer, 1000));
+		highlighter.setTextFragmenter(new SimpleSpanFragmenter(scorer, 100));
 
 		final String content = this.inputStream2String(inputStream);
 
-		// out.println(highlighter.getBestFragment(analyzer, "contents",
-		// content));
-		final String[] fragments = highlighter.getBestFragments(analyzer,
-				"contents", content, 10);
-		for (String fragment : fragments) {
+		final TextFragment[] bestTextFragments = highlighter
+				.getBestTextFragments(analyzer.tokenStream("contents",
+						new StringReader(content)), content, true, 10);
+		for (TextFragment fragment : bestTextFragments) {
+			out.println(fragment.getFragNum());
 			out.println(fragment);
-			out.println("-------------------------------");
 			out.println("......");
-			out.println("-------------------------------");
+			out.println();
 		}
 		if (jarFile != null) {
 			jarFile.close();

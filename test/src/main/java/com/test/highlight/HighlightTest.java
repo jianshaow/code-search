@@ -102,8 +102,7 @@ public class HighlightTest {
 	 */
 	public static void main(String[] args) throws URISyntaxException, Exception {
 		searchHighlightByAnalyzer();
-		System.out
-				.println("======================================================");
+		System.out.println("=================================================");
 		searchHighlightByTermVector();
 	}
 
