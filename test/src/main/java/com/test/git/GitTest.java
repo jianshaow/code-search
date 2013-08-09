@@ -16,18 +16,19 @@ public class GitTest {
 	 * @throws GitAPIException
 	 */
 	public static void main(String[] args) throws IOException, GitAPIException {
-		final Git repo = Git
-				.open(new File("D:/Devel/repositories/support-tool"));
-		printRefs(repo.tagList().call());
+		final Git git = Git.open(new File(
+				"D:/Sources/repositories/support-tool"));
 
-		printRefs(repo.branchList().call());
+		printRefs(git.tagList().call());
+		printRefs(git.branchList().call());
 
-		repo.checkout().setName(repo.tagList().call().get(0).getName()).call();
+		git.checkout().setName(git.tagList().call().get(0).getName()).call();
 	}
 
 	private static void printRefs(final List<Ref> refs) {
 		for (Ref ref : refs) {
-			System.out.println(ref.getName());
+			System.out.println(ref.getName() + ":"
+					+ ref.getObjectId().getName());
 		}
 	}
 }
