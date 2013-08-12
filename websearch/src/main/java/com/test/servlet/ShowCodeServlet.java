@@ -1,15 +1,12 @@
 package com.test.servlet;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import java.net.URL;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -43,8 +40,7 @@ public class ShowCodeServlet extends HttpServlet {
 			throws ServletException, IOException {
 
 		try {
-			final String url = request.getParameter("url");
-			final String entry = request.getParameter("entry");
+			final String uri = request.getParameter("uri");
 
 			response.setContentType("text/html;charset=utf-8");
 			response.setCharacterEncoding("utf-8");
@@ -54,7 +50,7 @@ public class ShowCodeServlet extends HttpServlet {
 			out.println("  <HEAD><TITLE>A Servlet</TITLE></HEAD>");
 			out.println("  <BODY>");
 
-			writeCode(out, url, entry);
+			writeCode(out, uri);
 
 			out.println("  </BODY>");
 			out.println("</HTML>");
@@ -65,13 +61,10 @@ public class ShowCodeServlet extends HttpServlet {
 		}
 	}
 
-	private void writeCode(PrintWriter out, final String url, final String entry)
+	private void writeCode(PrintWriter out, final String uri)
 			throws URISyntaxException, IOException,
 			UnsupportedEncodingException {
-		final File file = new File(new URI(url.replaceAll(" ", "%20")));
-		final JarFile jarFile = new JarFile(file);
-		final JarEntry jarEntry = jarFile.getJarEntry(entry);
-		final InputStream inputStream = jarFile.getInputStream(jarEntry);
+		final InputStream inputStream = new URL(uri).openStream();
 
 		final JavaSourceConversionSettings settings = JavaSourceConversionSettings
 				.getDefault();
@@ -87,7 +80,7 @@ public class ShowCodeServlet extends HttpServlet {
 				.parse(reader);
 		final IJavaSourceConverter converter = settings.createConverter();
 		converter.convert(source, conversionOptions, out);
-		jarFile.close();
+		inputStream.close();
 	}
 
 	public void init() throws ServletException {

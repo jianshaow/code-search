@@ -1,15 +1,12 @@
 package com.test.servlet;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.jar.JarFile;
+import java.net.URL;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -49,8 +46,7 @@ public class ShowHighlightCodeServlet extends HttpServlet {
 			throws ServletException, IOException {
 
 		try {
-			final String url = request.getParameter("url");
-			final String entry = request.getParameter("entry");
+			final String uri = request.getParameter("uri");
 			final String query = request.getParameter("query");
 
 			response.setContentType("text/html;charset=utf-8");
@@ -62,7 +58,7 @@ public class ShowHighlightCodeServlet extends HttpServlet {
 			out.println("  <BODY>");
 			out.println("    <PRE>");
 
-			writeCode(out, query, url, entry);
+			writeCode(out, query, uri);
 
 			out.println("    </PRE>");
 			out.println("  </BODY>");
@@ -77,16 +73,8 @@ public class ShowHighlightCodeServlet extends HttpServlet {
 	}
 
 	private void writeCode(final PrintWriter out, final String queryString,
-			final String url, final String entry) throws Exception {
-		final File file = new File(new URI(url.replaceAll(" ", "%20")));
-		InputStream inputStream = null;
-		JarFile jarFile = null;
-		if (url.endsWith(".jar")) {
-			jarFile = new JarFile(file);
-			inputStream = jarFile.getInputStream(jarFile.getJarEntry(entry));
-		} else {
-			inputStream = new FileInputStream(file);
-		}
+			final String uri) throws Exception {
+		final InputStream inputStream = new URL(uri).openStream();
 
 		final Analyzer analyzer = new JavaAnalyzer();
 		SimpleHTMLFormatter simpleHTMLFormatter = new SimpleHTMLFormatter(
@@ -109,9 +97,7 @@ public class ShowHighlightCodeServlet extends HttpServlet {
 			out.println("......");
 			out.println();
 		}
-		if (jarFile != null) {
-			jarFile.close();
-		}
+		inputStream.close();
 	}
 
 	private String inputStream2String(InputStream in) throws Exception {

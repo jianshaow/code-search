@@ -113,8 +113,8 @@ public String escapeHTML(String s) {
 %>
                 <table border=1>
                 <tr>
-                        <td>Document</td>
-                        <td>Summary</td>
+                        <td>URI</td>
+                        <td>File</td>
                         <td colspan=2>Action</td>
                 </tr>
 <%
@@ -127,21 +127,16 @@ public String escapeHTML(String s) {
                 <tr>
 <%
                         Document doc = searcher.doc(topDocs.scoreDocs[i].doc);                    //get the next document 
-                        String doctitle = doc.get("jarEntry");            //get its title
-                        String url = doc.get("url");                  //get its path field
-                        String jarFile = doc.get("jarFile");
-                        String javaFile = doc.get("javaFile");
-                        if (url != null && url.startsWith("../webapps/")) { // strip off ../webapps prefix if present
-                                url = url.substring(10);
+                        String uri = doc.get("uri");                  //get its path field
+                        String file = doc.get("file");
+                        if (uri != null && uri.startsWith("../webapps/")) { // strip off ../webapps prefix if present
+                                uri = uri.substring(10);
                         }
-                        if ((doctitle == null) || doctitle.equals("")) //use the path if it has no title
-                                doctitle = url;
-                                                                       //then output!
 %>
-                        <td><%=doctitle%></td>
-                        <td><%=jarFile==null ? javaFile : jarFile%></td>
-                        <td><a href="show-highlight-code?url=<%=url%>&entry=<%=doctitle%>&query=<%=URLEncoder.encode(queryString)%>>">show highlight snippet</a></td>
-                        <td><a href="show-code?url=<%=url%>&entry=<%=doctitle%>&query=<%=URLEncoder.encode(queryString)%>>">show all</a></td>
+                        <td><%=uri%></td>
+                        <td><%=file%></td>
+                        <td><a href="show-highlight-code?uri=<%=URLEncoder.encode(uri)%>&query=<%=URLEncoder.encode(queryString)%>>">show highlight snippet</a></td>
+                        <td><a href="show-code?uri=<%=URLEncoder.encode(uri)%>&query=<%=URLEncoder.encode(queryString)%>>">show all</a></td>
                 </tr>
 <%
                 }

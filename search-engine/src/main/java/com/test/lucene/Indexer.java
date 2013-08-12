@@ -112,11 +112,11 @@ public class Indexer {
 			}
 			final String uri = "file:///"
 					+ file.getCanonicalPath().replace("\\", "/");
-			doc.add(new Field("url", uri, buildType(true, false, false, false)));
+			doc.add(new Field("uri", uri, buildType(true, false, false, false)));
 			doc.add(new Field("contents", reader, buildType(false, true, true,
 					true)));
-			doc.add(new Field("javaFile", file.getName(), buildType(true,
-					false, false, false)));
+			doc.add(new Field("file", file.getName(), buildType(true, false,
+					false, false)));
 			writer.addDocument(doc);
 		} catch (Throwable e) {
 			logger.error("indexing " + file.getName() + " error...");
@@ -170,17 +170,16 @@ public class Indexer {
 				}
 			}
 		}
-		final String uri = "file:///"
-				+ file.getCanonicalPath().replace("\\", "/");
-		doc.add(new Field("url", uri, buildType(true, false, false, false)));
+		final String uri = "jar:file:///"
+				+ file.getCanonicalPath().replace("\\", "/") + "!/"
+				+ jarEntry.getName();
+		doc.add(new Field("uri", uri, buildType(true, false, false, false)));
 		final InputStreamReader reader = new InputStreamReader(
 				jarFile.getInputStream(jarEntry));
 		doc.add(new Field("contents", reader,
 				buildType(false, true, true, true)));
-		doc.add(new Field("jarFile", file.getName(), buildType(true, false,
-				false, false)));
-		doc.add(new Field("jarEntry", jarEntry.getName(), buildType(true,
-				false, false, false)));
+		doc.add(new Field("file", file.getName(), buildType(true, false, false,
+				false)));
 		writer.addDocument(doc);
 	}
 
