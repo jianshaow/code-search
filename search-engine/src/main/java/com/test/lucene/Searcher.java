@@ -46,7 +46,7 @@ public class Searcher {
 				.open(indexDir));
 		final IndexSearcher searcher = new IndexSearcher(reader);
 
-		final Query query = new QueryParser(Version.LUCENE_42, "contents",
+		final Query query = new QueryParser(Version.LUCENE_47, "contents",
 				new JavaAnalyzer()).parse(q);
 		System.out.println(query);
 		final long start = System.currentTimeMillis();

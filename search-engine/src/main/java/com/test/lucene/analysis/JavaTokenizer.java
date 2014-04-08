@@ -21,6 +21,8 @@ public class JavaTokenizer extends Tokenizer {
 	private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
 	private final TypeAttribute typeAtt = addAttribute(TypeAttribute.class);
 
+	private int skippedPositions;
+
 	private JavaCharStream stream;
 	private JavaParserTokenManager scanner;
 
@@ -33,7 +35,7 @@ public class JavaTokenizer extends Tokenizer {
 	@Override
 	public boolean incrementToken() throws IOException {
 		clearAttributes();
-		int posIncr = 1;
+		skippedPositions = 0;
 
 		while (true) {
 			final Token token = this.scanner.getNextToken();
@@ -41,7 +43,7 @@ public class JavaTokenizer extends Tokenizer {
 				return false;
 			}
 			if (token.kind == JavaParserConstants.IDENTIFIER) {
-				posIncrAtt.setPositionIncrement(posIncr);
+				posIncrAtt.setPositionIncrement(skippedPositions + 1);
 				termAtt.copyBuffer(token.image.toCharArray(), 0,
 						token.image.length());
 				final int end = this.stream.getEnd();
@@ -49,21 +51,34 @@ public class JavaTokenizer extends Tokenizer {
 						correctOffset(end));
 				typeAtt.setType(JavaParserConstants.tokenImage[token.kind]);
 				return true;
+			} else {
+				skippedPositions++;
 			}
-			posIncr++;
 		}
 	}
 
 	@Override
-	public final void end() {
+	public void close() throws IOException {
+		super.close();
+		this.stream.ReInit(input);
+		this.scanner.ReInit(this.stream);
+	}
+
+	@Override
+	public final void end() throws IOException {
+		super.end();
 		final int end = this.stream.getEnd();
 		final int finalOffset = correctOffset(end);
 		offsetAtt.setOffset(finalOffset, finalOffset);
+		posIncrAtt.setPositionIncrement(posIncrAtt.getPositionIncrement()
+				+ skippedPositions);
 	}
 
 	@Override
 	public void reset() throws IOException {
+		super.reset();
 		this.stream.ReInit(input);
 		this.scanner.ReInit(stream);
+		skippedPositions = 0;
 	}
 }

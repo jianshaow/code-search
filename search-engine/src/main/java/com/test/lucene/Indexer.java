@@ -64,7 +64,7 @@ public class Indexer {
 		final Directory dir = FSDirectory.open(indexDir);
 		final JavaAnalyzer analyzer = new JavaAnalyzer();
 		final IndexWriterConfig config = new IndexWriterConfig(
-				Version.LUCENE_42, analyzer);
+				Version.LUCENE_47, analyzer);
 		config.setOpenMode(OpenMode.CREATE);
 		final IndexWriter writer = new IndexWriter(dir, config);
 		index(writer, targetDir);
@@ -141,13 +141,13 @@ public class Indexer {
 			if (jarEntry.getName().endsWith(".java")) {
 				try {
 					index(writer, file, jarFile, jarEntry);
+					writer.commit();
 				} catch (Throwable e) {
 					logger.error("indexing " + jarEntry.getName() + " error...");
 					logger.error(e.getMessage(), e);
 					continue;
 				}
 			}
-			writer.commit();
 		}
 		jarFile.close();
 	}
