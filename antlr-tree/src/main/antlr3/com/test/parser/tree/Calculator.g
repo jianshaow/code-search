@@ -24,8 +24,8 @@ factor : INT
        | LBR expr RBR
        ;
 
-PLS   : '+' ;
-MIN  : '-' ;
+PLS    : '+' ;
+MIN    : '-' ;
 MUL    : '*' ;
 DIV    : '/' ;
 LBR    : '(' ;
