@@ -24,7 +24,7 @@ public class IndexingTest {
 		final Directory dir = FSDirectory.open(indexDir);
 		final Analyzer analyzer = new JavaAnalyzer();
 		final IndexWriterConfig config = new IndexWriterConfig(
-				Version.LUCENE_42, analyzer);
+				Version.LUCENE_47, analyzer);
 		config.setOpenMode(OpenMode.CREATE);
 		final IndexWriter writer = new IndexWriter(dir, config);
 		Indexer.indexJavaFile(writer, javaFile);

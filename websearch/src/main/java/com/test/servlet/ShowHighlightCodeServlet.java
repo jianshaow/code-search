@@ -79,7 +79,7 @@ public class ShowHighlightCodeServlet extends HttpServlet {
 		final Analyzer analyzer = new JavaAnalyzer();
 		SimpleHTMLFormatter simpleHTMLFormatter = new SimpleHTMLFormatter(
 				"<font color='red'>", "</font>");
-		final QueryParser parser = new QueryParser(Version.LUCENE_42,
+		final QueryParser parser = new QueryParser(Version.LUCENE_47,
 				"contents", analyzer);
 		final Query query = parser.parse(queryString);
 		final QueryScorer scorer = new QueryScorer(query);

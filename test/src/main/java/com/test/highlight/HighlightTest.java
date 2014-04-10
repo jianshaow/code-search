@@ -113,7 +113,7 @@ public class HighlightTest {
 			final IndexSearcher searcher = new IndexSearcher(
 					DirectoryReader.open(directory));
 			final Analyzer analyzer = new JavaAnalyzer();
-			final QueryParser parser = new QueryParser(Version.LUCENE_42,
+			final QueryParser parser = new QueryParser(Version.LUCENE_47,
 					"contents", analyzer);
 			final Query query = parser.parse("rowMapper");
 			final TopDocs hits = searcher.search(query, 100);
@@ -138,7 +138,7 @@ public class HighlightTest {
 			final IndexSearcher searcher = new IndexSearcher(
 					DirectoryReader.open(directory));
 			final Analyzer analyzer = new JavaAnalyzer();
-			final QueryParser parser = new QueryParser(Version.LUCENE_42,
+			final QueryParser parser = new QueryParser(Version.LUCENE_47,
 					"contents", analyzer);
 			final Query query = parser.parse("rowMapper");
 			final TopDocs hits = searcher.search(query, 100);
