@@ -1,4 +1,4 @@
-package com.test.servlet;
+package com.test.websearch.servlet;
 
 import java.io.IOException;
 import java.io.InputStream;

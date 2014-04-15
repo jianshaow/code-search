@@ -9,7 +9,8 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<solr.version>4.7.1</solr.version>
+		<lucene.version>4.7.1</lucene.version>
+		<jetty.version>8.1.10.v20130312</jetty.version>
 	</properties>
 
 	<dependencyManagement>
@@ -33,27 +34,27 @@
 			<dependency>
 				<groupId>org.apache.solr</groupId>
 				<artifactId>solr-solrj</artifactId>
-				<version>${solr.version}</version>
+				<version>${lucene.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.solr</groupId>
 				<artifactId>solr-core</artifactId>
-				<version>${solr.version}</version>
+				<version>${lucene.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-core</artifactId>
-				<version>${solr.version}</version>
+				<version>${lucene.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-analyzers-common</artifactId>
-				<version>${solr.version}</version>
+				<version>${lucene.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-queryparser</artifactId>
-				<version>${solr.version}</version>
+				<version>${lucene.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.jgit</groupId>
@@ -114,10 +115,15 @@
 				<plugin>
 					<groupId>org.mortbay.jetty</groupId>
 					<artifactId>jetty-maven-plugin</artifactId>
-					<version>8.1.9.v20130131</version>
+					<version>8.1.14.v20131031</version>
 				</plugin>
-				<!--This plugin's configuration is used to store Eclipse m2e settings 
-					only. It has no influence on the Maven build itself. -->
+            
+				<plugin>
+					<groupId>org.eclipse.jetty</groupId>
+					<artifactId>jetty-maven-plugin</artifactId>
+					<version>${jetty.version}</version>
+				</plugin>
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>

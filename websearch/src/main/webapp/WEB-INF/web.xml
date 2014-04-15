@@ -7,13 +7,13 @@
 		<description>Show the highlight code</description>
 		<display-name>Show the highlight code</display-name>
 		<servlet-name>ShowHighlightCodeServlet</servlet-name>
-		<servlet-class>com.test.servlet.ShowHighlightCodeServlet</servlet-class>
+		<servlet-class>com.test.websearch.servlet.ShowHighlightCodeServlet</servlet-class>
 	</servlet>
 	<servlet>
 		<description>Show the highlight code</description>
 		<display-name>Show the highlight code</display-name>
 		<servlet-name>ShowCodeServlet</servlet-name>
-		<servlet-class>com.test.servlet.ShowCodeServlet</servlet-class>
+		<servlet-class>com.test.websearch.servlet.ShowCodeServlet</servlet-class>
 	</servlet>
 
 	<servlet-mapping>
