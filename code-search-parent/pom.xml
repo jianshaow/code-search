@@ -9,7 +9,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<lucene.version>8.6.2</lucene.version>
+		<lucene.version>8.8.2</lucene.version>
 		<jetty.version>8.1.10.v20130312</jetty.version>
 	</properties>
 
